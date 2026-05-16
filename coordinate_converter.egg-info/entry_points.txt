@@ -1,0 +1,3 @@
+[console_scripts]
+coordinate-converter-cli = coordinate_converter.interfaces.cli:main
+coordinate-converter-gui = coordinate_converter.interfaces.gui:main

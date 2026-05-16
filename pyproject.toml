@@ -1,0 +1,71 @@
+[build-system]
+requires = ["setuptools>=65.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "coordinate-converter"
+version = "0.1.0"
+description = "A Python application for converting geographic coordinates between different coordinate systems"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "Your Name", email = "your.email@example.com"}
+]
+keywords = ["coordinates", "geographic", "MGRS", "USK-2000", "conversion"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: GIS",
+]
+
+dependencies = [
+    "mgrs>=1.4.0",
+    "pyproj>=3.4.0",
+    "ttkbootstrap>=1.10.0",
+    "packaging>=21.0"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "hypothesis>=6.0.0",
+    "pytest-cov>=4.0.0",
+]
+
+[project.scripts]
+coordinate-converter-cli = "coordinate_converter.interfaces.cli:main"
+coordinate-converter-gui = "coordinate_converter.interfaces.gui:main"
+
+[tool.setuptools]
+packages = ["coordinate_converter"]
+
+[tool.setuptools.package-data]
+coordinate_converter = ["py.typed"]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --cov=coordinate_converter --cov-report=html --cov-report=term-missing"
+
+[tool.coverage.run]
+source = ["coordinate_converter"]
+omit = ["*/tests/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]

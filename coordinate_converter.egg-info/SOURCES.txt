@@ -1,0 +1,10 @@
+README.md
+pyproject.toml
+coordinate_converter/__init__.py
+coordinate_converter/__main__.py
+coordinate_converter.egg-info/PKG-INFO
+coordinate_converter.egg-info/SOURCES.txt
+coordinate_converter.egg-info/dependency_links.txt
+coordinate_converter.egg-info/entry_points.txt
+coordinate_converter.egg-info/requires.txt
+coordinate_converter.egg-info/top_level.txt
