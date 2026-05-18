@@ -19,6 +19,7 @@ Requires-Dist: mgrs>=1.4.0
 Requires-Dist: pyproj>=3.4.0
 Requires-Dist: ttkbootstrap>=1.10.0
 Requires-Dist: packaging>=21.0
+Requires-Dist: tkinterweb>=0.3.0
 Provides-Extra: dev
 Requires-Dist: pytest>=7.0.0; extra == "dev"
 Requires-Dist: hypothesis>=6.0.0; extra == "dev"
@@ -38,6 +39,7 @@ A Python application for converting geographic coordinates between different coo
 - **Dual Interfaces**: 
   - Command-line interface (CLI) for scripting and automation
   - Graphical user interface (GUI) with Tkinter and ttkbootstrap
+- **Map Visualization**: Display converted coordinates on an interactive Leaflet map in a separate window
 - **Simultaneous Conversion**: Convert to all supported systems in a single operation
 - **Extensible Architecture**: Easy to add new coordinate systems
 - **Property-Based Testing**: Comprehensive correctness properties with Hypothesis
@@ -98,6 +100,7 @@ The GUI provides:
 - Format toggle for geographic coordinates (Decimal/DMS)
 - Real-time conversion to all other systems
 - Error display for invalid inputs
+- Map visualization button to display coordinates on an interactive Leaflet map
 
 ## Output Format
 
@@ -204,6 +207,7 @@ coordinate-converter/
 - **mgrs** (>=1.4.0): MGRS coordinate conversions
 - **pyproj** (>=3.4.0): Coordinate system transformations
 - **ttkbootstrap** (>=1.10.0): Modern Tkinter themes
+- **tkinterweb** (>=0.3.0): Tkinter web view for Leaflet map integration
 
 ### Development
 - **pytest** (>=7.0.0): Testing framework
@@ -247,7 +251,8 @@ Potential additions:
 - Auto-format detection
 - Precision control
 - Export to CSV/JSON/KML
-- Map visualization
+- Multiple markers on map
+- Map layer selection (satellite, terrain, etc.)
 
 ## License
 

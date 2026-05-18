@@ -12,6 +12,7 @@ A Python application for converting geographic coordinates between different coo
 - **Dual Interfaces**: 
   - Command-line interface (CLI) for scripting and automation
   - Graphical user interface (GUI) with Tkinter and ttkbootstrap
+- **Map Visualization**: Display converted coordinates on an interactive map in a separate window using TkinterMapView
 - **Simultaneous Conversion**: Convert to all supported systems in a single operation
 - **Extensible Architecture**: Easy to add new coordinate systems
 - **Property-Based Testing**: Comprehensive correctness properties with Hypothesis
@@ -72,6 +73,11 @@ The GUI provides:
 - Format toggle for geographic coordinates (Decimal/DMS)
 - Real-time conversion to all other systems
 - Error display for invalid inputs
+- Non-blocking map visualization with "Show on Map" button
+  - Opens interactive map in a separate window using TkinterMapView
+  - Displays marker at converted geographic coordinates
+  - Updates map position on subsequent conversions (reuses window)
+  - Includes zoom and pan controls
 
 ## Output Format
 
@@ -178,6 +184,7 @@ coordinate-converter/
 - **mgrs** (>=1.4.0): MGRS coordinate conversions
 - **pyproj** (>=3.4.0): Coordinate system transformations
 - **ttkbootstrap** (>=1.10.0): Modern Tkinter themes
+- **tkintermapview** (>=1.0.0): Interactive map widget for Tkinter
 
 ### Development
 - **pytest** (>=7.0.0): Testing framework
@@ -221,7 +228,8 @@ Potential additions:
 - Auto-format detection
 - Precision control
 - Export to CSV/JSON/KML
-- Map visualization
+- Multiple markers on map
+- Map layer selection (satellite, terrain, etc.)
 
 ## License
 

@@ -5,10 +5,11 @@ import tkinter.ttk as ttk
 import ttkbootstrap as tb
 from ttkbootstrap.constants import *
 
-from ttkbootstrap.tooltip import ToolTip
+
+from .map_dialog import MapWindow
 
 TITLE = "Coordinate Converter"
-THEME = "superhero"
+THEME = "cyborg"
 WIDTH = 400
 HEIGHT = 450
 SYSTEMS = ("Geographic", "USK2000", "MGRS") # defined in root level __init___.py, convert to lowercase when passing to engine
@@ -43,6 +44,8 @@ class CoordinateConverterGUI(tb.Window):
         self.selected_system = None
         self.selected_geo_type = GEO_SUBTYPES[0]
         self.input_fields = {}
+        self.last_result = None
+        self.map_window = None
 
         # Create widgets and layout
         self._create_widgets()
@@ -83,17 +86,17 @@ class CoordinateConverterGUI(tb.Window):
         self.decimal_frame.columnconfigure(1, weight=1)
         self.decimal_frame.columnconfigure(3, weight=1)
         tb.Label(self.decimal_frame, text="Latitude: ").grid(row=0, column=0, sticky="w", padx=0)
-        self.decimal_lat_entry = tb.Entry(self.decimal_frame)
+        self.decimal_lat_entry = tb.Entry(self.decimal_frame, bootstyle="light")
         self.decimal_lat_entry.grid(row=0, column=1, sticky="ew", padx=PADDINGS['x'])
         tb.Label(self.decimal_frame, text="Longitude: ").grid(row=0, column=2, sticky="w", padx=0)
-        self.decimal_lon_entry = tb.Entry(self.decimal_frame)
+        self.decimal_lon_entry = tb.Entry(self.decimal_frame, bootstyle="light")
         self.decimal_lon_entry.grid(row=0, column=3, sticky="ew", padx=PADDINGS['x'])
 
         # DMS input frame
         self.dms_type_frame = tb.Frame(self)
         self.dms_type_frame.grid(row=2,column=0,sticky='ew', padx=PADDINGS['x'], pady=PADDINGS['y'])
         tb.Label(self.dms_type_frame, text="Coordinates string: ").grid(row=0, column=0, sticky="w", padx=PADDINGS['x'])
-        self.dms_coord_entry = tb.Entry(self.dms_type_frame, width=len(DMS_PLACEHOLDER)+2)
+        self.dms_coord_entry = tb.Entry(self.dms_type_frame, width=len(DMS_PLACEHOLDER)+2, bootstyle="light")
         self.dms_coord_entry.insert(0, DMS_PLACEHOLDER)
         self.dms_coord_entry.grid(row=0, column=1, sticky="ew", padx=5)
 
@@ -111,10 +114,10 @@ class CoordinateConverterGUI(tb.Window):
         self.usk_frame.columnconfigure(1, weight=1)
         self.usk_frame.columnconfigure(3, weight=1)
         tb.Label(self.usk_frame, text="X: ").grid(row=0, column=0, sticky="w", padx=0)
-        self.usk_lat_entry = tb.Entry(self.usk_frame)
+        self.usk_lat_entry = tb.Entry(self.usk_frame, bootstyle="light")
         self.usk_lat_entry.grid(row=0, column=1, sticky="ew", padx=PADDINGS["y"])
         tb.Label(self.usk_frame, text="Y: ").grid(row=0, column=2, sticky="w", padx=0)
-        self.usk_lon_entry = tb.Entry(self.usk_frame)
+        self.usk_lon_entry = tb.Entry(self.usk_frame, bootstyle="light")
         self.usk_lon_entry.grid(row=0, column=3, sticky="ew", padx=PADDINGS["y"])
         self.decimal_lon_entry.grid(row=0, column=3, sticky="ew", padx=PADDINGS["y"])
 
@@ -124,7 +127,7 @@ class CoordinateConverterGUI(tb.Window):
         self.mgrs_frame.grid(row=2,column=0,sticky='ew', padx=PADDINGS['x'], pady=PADDINGS['y'])
         self.mgrs_frame.columnconfigure(1, weight=1)
         tb.Label(self.mgrs_frame, text="MGRS: ").grid(row=0, column=0, sticky="w", padx=PADDINGS["x"])
-        self.mgrs_entry = tb.Entry(self.mgrs_frame)
+        self.mgrs_entry = tb.Entry(self.mgrs_frame, bootstyle="light")
         self.mgrs_entry.insert(0, MGRS_PLACEHOLDER)
         self.mgrs_entry.grid(row=0, column=1, sticky="ew", padx=5)
 
@@ -133,7 +136,7 @@ class CoordinateConverterGUI(tb.Window):
             frame.grid_remove()  # Hide all input frames initially
 
         #------ Output -------
-        self.output_text = tb.Text(self, height=10, font=(FONT_FAMILY, FONT_SIZE))
+        self.output_text = tb.Text(self, height=8, font=(FONT_FAMILY, FONT_SIZE))
         self.output_text.grid(row=3, column=0, sticky="ews", padx=PADDINGS['x'])
 
         self.output_text.tag_config("value", font=(FONT_FAMILY, FONT_SIZE, "italic"),
@@ -144,9 +147,13 @@ class CoordinateConverterGUI(tb.Window):
                                     foreground=COLORS["error"])
 
         # ------ Controls -------
-        self.convert_button = tb.Button(self, text="Convert", command=self._on_convert)
+        self.convert_button = tb.Button(self, text="Convert", command=self._on_convert, bootstyle="success")
         self.convert_button.config(state="disabled")
         self.convert_button.grid(row=4, column=0, pady=PADDINGS['y'], sticky="ews", padx=PADDINGS['x'])
+
+        self.show_map_button = tb.Button(self, text= "Show Map", command=self._on_show_map, bootstyle="primary")
+        # self.show_map_button.config(state="disabled")
+        self.show_map_button.grid(row=45, column=0, pady=PADDINGS['y'], sticky="ews", padx=PADDINGS['x'])
 
     
     def _on_system_change(self, event=None):
@@ -187,51 +194,44 @@ class CoordinateConverterGUI(tb.Window):
             frame.grid_remove()
 
     def _on_convert(self):
-        self.convert_button.config(state="disabled")  # Disable button to prevent multiple clicks
-        selected_system = self.input_system_dropdown.get()
-        if selected_system == SYSTEMS[0]:  # Geographic
-            coord_type = self.geo_coord_type_var.get()
-            if coord_type == GEO_SUBTYPES[0]:
-                try:
-                    lat = float(self.decimal_lat_entry.get())
+        self.convert_button.config(state="disabled")
+        try:
+            selected_system = self.input_system_dropdown.get()
+            if selected_system == SYSTEMS[0]:  # Geographic
+                coord_type = self.geo_coord_type_var.get()
+                if coord_type == GEO_SUBTYPES[0]:
+                    lat = float(self.decimal_lat_entry.get())  # Remove inner try/except
                     lon = float(self.decimal_lon_entry.get())
                     coordinates = {"latitude": lat, "longitude": lon}
-                except ValueError:
-                    self.output_text.delete(1.0, END)
-                    self.output_text.insert(END, ERROR_LAT_LON)
+                elif coord_type == GEO_SUBTYPES[1]:
+                    dms_string = self.dms_coord_entry.get()
+                    coordinates = {"dms_string": dms_string}
+                else:
+                    self._display_error(ERROR_INVALOD_COORD_SYS)
                     return
-            elif coord_type == GEO_SUBTYPES[1]:
-                dms_string = self.dms_coord_entry.get()
-                coordinates = {"dms_string": dms_string}
-            else:
-                self.output_text.delete(1.0, END)
-                self.output_text.insert(END, ERROR_INVALOD_COORD_SYS)
-                return
 
-        elif selected_system == SYSTEMS[1]:  # USK-2000
-            try:
-                x = float(self.usk_lat_entry.get())
+            elif selected_system == SYSTEMS[1]:  # USK-2000
+                x = float(self.usk_lat_entry.get())  # Remove inner try/except
                 y = float(self.usk_lon_entry.get())
                 coordinates = {"x": x, "y": y}
-            except ValueError:
-                self.output_text.delete(1.0, END)
-                self.output_text.insert(END, ERROR_INVALID_USK_COORD)
+
+            elif selected_system == SYSTEMS[2]:  # MGRS
+                mgrs_string = self.mgrs_entry.get()
+                coordinates = {"mgrs_string": mgrs_string}
+            else:
+                self._display_error(ERROR_NO_INPUT_SYSTEM)
                 return
 
-        elif selected_system == SYSTEMS[2]:  # MGRS
-            mgrs_string = self.mgrs_entry.get()
-            coordinates = {"mgrs_string": mgrs_string}
+            from coordinate_converter.core.engine import convert
+            result = convert(selected_system.lower(), coordinates)
+            self.last_result = result  # Store the last result for potential future use (e.g., map display)
+            self._display_result(result)
+            
+        except ValueError as e:
+            self._display_error(ERROR_LAT_LON if "latitude" in str(e) else ERROR_INVALID_USK_COORD)
+        finally:
+            self.convert_button.config(state="normal")
 
-        else:
-            self.output_text.delete(1.0, END)
-            self.output_text.insert(END, ERROR_NO_INPUT_SYSTEM)
-            return
-        from ..core.engine import convert
-
-        result = convert(selected_system.lower(), coordinates)
-
-        self.convert_button.config(state="normal")  # Re-enable button
-        self._display_result(result)
 
     def _display_result(self, result):
         if result.success:
@@ -248,6 +248,40 @@ class CoordinateConverterGUI(tb.Window):
                 self.output_text.delete(1.0, END)  # Clear previous output
                 self.output_text.insert(END, "Error: ", "error")
                 self.output_text.insert(END, f"{result.error_msg}", "value")
+
+    def _display_error(self, message):
+        self.output_text.delete(1.0, END)
+        if message.startswith("Error: "):
+            message = message[7:]  # Remove "Error: " (7 chars)
+        self.output_text.insert(END, "Error: ", "error")
+        self.output_text.insert(END, message, "value")
+
+    def _on_show_map(self):
+        # Placeholder for map display functionality
+        
+        geo_coords = self.last_result.conversions.get('geographic') if self.last_result and self.last_result.success else None
+        if not geo_coords:
+            self._display_error("Geographic coordinates not found in conversion result.")
+            return
+        
+        # Parse the geographic output to extract lat/lon
+        # Format is "Geographic (Decimal): Lat: 49.0000, Lon: 37.0000"
+        try:
+            # Extract decimal values from the formatted output
+            import re
+            match = re.search(r'Lat:\s*([-\d.]+),\s*Lon:\s*([-\d.]+)', geo_coords)
+            if match:
+                lat = float(match.group(1))
+                lon = float(match.group(2))
+
+                if self.map_window and self.map_window.winfo_exists():
+                    self.map_window.update_position(lat, lon)
+                else:
+                    self.map_window = MapWindow(self, lat=lat, lon=lon)
+            else:
+                self._display_error("Could not parse geographic coordinates.")
+        except Exception as e:
+            self._display_error(f"Error displaying map: {str(e)}")
 
 
 if __name__ == "__main__":
