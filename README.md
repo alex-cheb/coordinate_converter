@@ -13,6 +13,7 @@ A Python application for converting geographic coordinates between different coo
   - Command-line interface (CLI) for scripting and automation
   - Graphical user interface (GUI) with Tkinter and ttkbootstrap
 - **Map Visualization**: Display converted coordinates on an interactive map in a separate window using TkinterMapView
+- **Polygon/Frontline Drawing**: Load and visualize polygon data from CSV files on the map
 - **Simultaneous Conversion**: Convert to all supported systems in a single operation
 - **Extensible Architecture**: Easy to add new coordinate systems
 - **Property-Based Testing**: Comprehensive correctness properties with Hypothesis
@@ -78,6 +79,8 @@ The GUI provides:
   - Displays marker at converted geographic coordinates
   - Updates map position on subsequent conversions (reuses window)
   - Includes zoom and pan controls
+  - Load and visualize polygon/frontline data from CSV files
+  - Toggle polygon visibility on the map
 
 ## Output Format
 
@@ -131,6 +134,40 @@ Adding new coordinate systems is straightforward:
 - **Format**: `X=1234567.89, Y=9876543.21`
 - **Coverage**: Ukraine and surrounding areas
 - **Precision**: Centimeters
+
+## CSV Format for Polygon/Frontline Data
+
+The map visualization supports loading polygon data from CSV files. Supported formats:
+
+### Format 1: Latitude, Longitude
+```csv
+latitude,longitude
+49.0000,37.0000
+49.0100,37.0100
+49.0200,37.0200
+```
+
+### Format 2: Lat, Lon (abbreviated)
+```csv
+lat,lon
+49.0000,37.0000
+49.0100,37.0100
+49.0200,37.0200
+```
+
+### Format 3: X, Y (for projected coordinates)
+```csv
+x,y
+1234567.89,9876543.21
+1234567.90,9876543.22
+1234567.91,9876543.23
+```
+
+**Requirements:**
+- CSV file must have a header row
+- Coordinates must be numeric values
+- Minimum 2 points required to draw a polygon
+- Coordinates must be within valid bounds for the coordinate system
 
 ## Development
 

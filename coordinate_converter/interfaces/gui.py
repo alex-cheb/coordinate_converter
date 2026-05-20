@@ -257,15 +257,13 @@ class CoordinateConverterGUI(tb.Window):
         self.output_text.insert(END, message, "value")
 
     def _on_show_map(self):
-        # Placeholder for map display functionality
-        
+        """Show the map window with the geographic coordinates from the last conversion result."""
         geo_coords = self.last_result.conversions.get('geographic') if self.last_result and self.last_result.success else None
         if not geo_coords:
             self._display_error("Geographic coordinates not found in conversion result.")
             return
         
         # Parse the geographic output to extract lat/lon
-        # Format is "Geographic (Decimal): Lat: 49.0000, Lon: 37.0000"
         try:
             # Extract decimal values from the formatted output
             import re
