@@ -2,6 +2,7 @@ mgrs>=1.4.0
 pyproj>=3.4.0
 ttkbootstrap>=1.10.0
 packaging>=21.0
+tkintermapview>=1.0.0
 
 [dev]
 pytest>=7.0.0

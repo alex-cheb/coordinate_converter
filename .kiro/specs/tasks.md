@@ -233,23 +233,45 @@ This implementation plan breaks down the Coordinate Converter feature into discr
     - Ensure styling is consistent with ttkbootstrap theme
     - _Requirements: 5.5, 5.7_
 
+  - [X] 9.11 Implement map visualization feature
+    - Add "Show on Map" button below the Convert button
+    - Implement `_on_show_map()` handler to open map in new window
+    - Create `MapWindow` class that displays interactive map using TkinterMapView
+    - Extract geographic (decimal) coordinates from last conversion result
+    - Display marker at the coordinate location
+    - Include map controls (zoom, pan)
+    - Handle errors gracefully (show error if no valid coordinates)
+    - Non-blocking map window allows parent interaction
+    - Reuse existing map window and update position on subsequent conversions
+    - _Requirements: 5.1, 5.5_
+
+  - [ ]* 9.12 Write property test for map visualization
+    - **Property 10: Map visualization correctness**
+    - **Validates: Requirements 5.1, 5.5**
+    - Generate random valid coordinates, simulate map display, verify HTML contains correct coordinates
+
+  - [ ]* 9.13 Write unit tests for map visualization
+    - Test map window creation
+    - Test HTML generation with correct coordinates
+    - Test error handling for invalid coordinates
+    - Test map window closes properly
+    - _Requirements: 5.1, 5.5_
+
 - [ ] 10. Checkpoint - Ensure all interface tests pass
   - Ensure all tests pass, ask the user if questions arise.
-
-- [ ] 11. Implement extensibility property test
   - [ ]* 11.1 Write property test for extensibility
     - **Property 8: Extensibility through registration**
     - **Validates: Requirements 6.2**
     - Create mock converter module, register with engine, verify it's used in conversions and appears in supported systems list
 
-- [ ] 12. Create main entry points and package configuration
-  - [ ] 12.1 Create main entry points
+- [X] 12. Create main entry points and package configuration
+  - [X] 12.1 Create main entry points
     - Create `__main__.py` for CLI entry point
     - Create launcher script for GUI
     - Add command-line argument to choose interface (CLI vs GUI)
     - _Requirements: 4.1, 5.1_
 
-  - [ ] 12.2 Create package configuration
+  - [X] 12.2 Create package configuration
     - Create `setup.py` or `pyproject.toml` for package installation
     - Specify dependencies: mgrs>=1.4.0, pyproj>=3.4.0, ttkbootstrap>=1.10.0
     - Specify dev dependencies: pytest>=7.0.0, hypothesis>=6.0.0, pytest-cov>=4.0.0
@@ -262,7 +284,58 @@ This implementation plan breaks down the Coordinate Converter feature into discr
     - Test adding a new coordinate system and verifying it works in both interfaces
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 6.2_
 
-- [ ] 13. Final checkpoint - Ensure all tests pass
+- [ ] 11. Implement extensibility property test
+  - [ ]* 11.1 Write property test for extensibility
+    - **Property 8: Extensibility through registration**
+    - **Validates: Requirements 6.2**
+    - Create mock converter module, register with engine, verify it's used in conversions and appears in supported systems list
+
+- [ ] 14. Implement polygon/frontline visualization feature
+  - [ ] 14.1 Create CSV data processing module
+    - Create `coordinate_converter/utils/csv_processor.py`
+    - Implement `load_csv(filepath)` to read CSV files with coordinate data
+    - Support CSV formats: latitude,longitude or lat,lon or x,y
+    - Validate coordinate data (check bounds, data types)
+    - Return list of coordinate tuples for polygon drawing
+    - Handle errors gracefully (file not found, invalid format, etc.)
+    - _Requirements: 5.1, 5.5_
+
+  - [ ] 14.2 Add polygon visualization to map dialog
+    - Add "Load Data" button to MapWindow
+    - Add "Show/Hide Polygon" toggle button to MapWindow
+    - Implement `_on_load_data()` handler to open file dialog
+    - Implement `_on_toggle_polygon()` handler to show/hide polygon
+    - Draw polygon on map using loaded CSV coordinates
+    - Display polygon with distinct color and styling
+    - Handle polygon state (loaded, visible, hidden)
+    - _Requirements: 5.1, 5.5_
+
+  - [ ] 14.3 Enhance map dialog UI
+    - Reorganize buttons in map dialog (Load Data, Show/Hide Polygon, Close)
+    - Add status label showing polygon state (loaded/not loaded, visible/hidden)
+    - Add coordinate count display when polygon loaded
+    - Improve button layout and spacing
+    - _Requirements: 5.1, 5.5_
+
+  - [ ]* 14.4 Write property test for polygon visualization
+    - **Property 11: Polygon visualization correctness**
+    - **Validates: Requirements 5.1, 5.5**
+    - Generate random valid coordinates, load as polygon, verify polygon renders correctly
+
+  - [ ]* 14.5 Write unit tests for CSV processing
+    - Test CSV loading with various formats
+    - Test coordinate validation
+    - Test error handling (missing file, invalid format, out of bounds)
+    - Test polygon drawing with different coordinate counts
+    - _Requirements: 5.1, 5.5_
+
+- [ ] 15. Checkpoint - Ensure polygon visualization works
+  - Ensure polygon loading and display works correctly
+  - Test with sample CSV files
+  - Verify error handling for invalid data
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 16. Final checkpoint - Ensure all tests pass
   - Run complete test suite with pytest
   - Verify all property-based tests pass (minimum 100 iterations each)
   - Verify test coverage meets goals (100% core logic, 90%+ interfaces)
